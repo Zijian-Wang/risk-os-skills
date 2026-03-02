@@ -158,8 +158,8 @@ BUY requires conviction >= 65.
 |---|---|
 | Entry ref | $XXX.XX |
 | Stop loss | $XXX.XX (−X.X%) |
-| Take profit | $XXX.XX (+X.X%) |
-| R/R ratio | X.XX |
+| Resistance | $XXX.XX (+X.X%) or N/A |
+| R/R to resistance | X.XX or N/A |
 | Position size | XX shares |
 | Risk amount | $XXX (X.X% equity) |
 
