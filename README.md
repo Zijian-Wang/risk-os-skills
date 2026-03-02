@@ -98,6 +98,17 @@ risk-os-skills/
 └── setup.sh
 ```
 
+## OpenClaw native skills (added)
+
+This repo now also includes OpenClaw-native skill definitions at:
+
+- `.agents/skills/analyze-trade/SKILL.md`
+- `.agents/skills/watch-list/SKILL.md`
+- `.agents/skills/validate-account/SKILL.md`
+- `.agents/skills/show-risk-config/SKILL.md`
+
+These mirror the Claude slash-command intents so OpenClaw can trigger them natively.
+
 ## Part of the risk-os universe
 
-This repo contains the Claude Code skill layer. Other components in the risk-os universe live in their own repos.
+This repo contains the Claude Code skill layer plus OpenClaw-native skill definitions. Other components in the risk-os universe live in their own repos.

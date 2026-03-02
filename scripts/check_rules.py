@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply hard risk rules, compute exit levels, and size the position.
+"""Apply hard risk rules, compute stop + resistance context, and size the position.
 
 Usage:
     python scripts/check_rules.py \
@@ -15,10 +15,10 @@ Output JSON:
       "violations": [],
       "entry": 197.4,
       "stop_loss": 190.2,
-      "take_profit": 210.8,
+      "resistance": 210.8,
       "stop_pct": -3.6,
-      "tp_pct": 6.8,
-      "rr_ratio": 1.86,
+      "resistance_pct": 6.8,
+      "rr_to_resistance": 1.86,
       "position_size": 80,
       "risk_amount": 576.0,
       "reward_amount": 1072.0,
@@ -62,24 +62,13 @@ def compute_stop_loss(entry: float, atr: float, nearest_support: float | None, d
     return atr_stop
 
 
-def compute_take_profit(
-    entry: float,
-    stop_loss: float,
-    nearest_resistance: float | None,
-    defaults: dict,
-) -> float:
-    """Target TP at default_tp_rr; use resistance level if it clears min_rr."""
-    risk = entry - stop_loss
-    min_rr = defaults["min_rr"]
-    target_rr = defaults["default_tp_rr"]
-    tp_rr = entry + target_rr * risk
-
-    if nearest_resistance is not None and nearest_resistance > entry:
-        resistance_rr = (nearest_resistance - entry) / risk if risk > 0 else 0
-        if resistance_rr >= min_rr:
-            return nearest_resistance
-
-    return tp_rr
+def derive_resistance(entry: float, nearest_resistance: float | None) -> float | None:
+    """Use nearest technical resistance if it exists above entry; otherwise None."""
+    if nearest_resistance is None:
+        return None
+    if nearest_resistance <= entry:
+        return None
+    return nearest_resistance
 
 
 def enforce_price_limit(price: float, entry: float, price_limit: float | None, is_stop: bool) -> float:
@@ -148,17 +137,20 @@ def run_checks(
     stop_loss = enforce_price_limit(stop_loss, entry, price_limit, is_stop=True)
     stop_loss = round_to_tick(stop_loss, tick_size)
 
-    take_profit = compute_take_profit(entry, stop_loss, nearest_resistance, defaults)
-    take_profit = enforce_price_limit(take_profit, entry, price_limit, is_stop=False)
-    take_profit = round_to_tick(take_profit, tick_size)
+    resistance = derive_resistance(entry, nearest_resistance)
+    if resistance is not None:
+        resistance = enforce_price_limit(resistance, entry, price_limit, is_stop=False)
+        resistance = round_to_tick(resistance, tick_size)
 
     position_size = compute_position_size(
         entry, stop_loss, equity, cash, risk_pct, defaults["max_position_pct"], lot_size
     )
 
     risk_amount = (entry - stop_loss) * position_size
-    reward_amount = (take_profit - entry) * position_size
-    rr_ratio = reward_amount / risk_amount if risk_amount > 0 else 0.0
+    reward_amount = ((resistance - entry) * position_size) if resistance is not None else None
+    rr_to_resistance = (
+        (reward_amount / risk_amount) if (reward_amount is not None and risk_amount > 0) else None
+    )
 
     violations = []
 
@@ -185,10 +177,12 @@ def run_checks(
             ),
         })
 
-    if rr_ratio < defaults["min_rr"]:
+    if rr_to_resistance is not None and rr_to_resistance < defaults["min_rr"]:
         violations.append({
-            "rule": "min_rr",
-            "message": f"R/R ratio {rr_ratio:.2f} below minimum {defaults['min_rr']}",
+            "rule": "min_rr_to_resistance",
+            "message": (
+                f"R/R to resistance {rr_to_resistance:.2f} below minimum {defaults['min_rr']}"
+            ),
         })
 
     max_positions = defaults["max_concurrent_positions"]
@@ -199,7 +193,7 @@ def run_checks(
         })
 
     stop_pct = (stop_loss - entry) / entry * 100
-    tp_pct = (take_profit - entry) / entry * 100
+    resistance_pct = ((resistance - entry) / entry * 100) if resistance is not None else None
     risk_pct_equity = risk_amount / equity * 100 if equity > 0 else 0
 
     return {
@@ -207,13 +201,13 @@ def run_checks(
         "violations": violations,
         "entry": round(entry, 4),
         "stop_loss": round(stop_loss, 4),
-        "take_profit": round(take_profit, 4),
+        "resistance": round(resistance, 4) if resistance is not None else None,
         "stop_pct": round(stop_pct, 2),
-        "tp_pct": round(tp_pct, 2),
-        "rr_ratio": round(rr_ratio, 2),
+        "resistance_pct": round(resistance_pct, 2) if resistance_pct is not None else None,
+        "rr_to_resistance": round(rr_to_resistance, 2) if rr_to_resistance is not None else None,
         "position_size": position_size,
         "risk_amount": round(risk_amount, 2),
-        "reward_amount": round(reward_amount, 2),
+        "reward_amount": round(reward_amount, 2) if reward_amount is not None else None,
         "risk_pct_equity": round(risk_pct_equity, 2),
     }
 
