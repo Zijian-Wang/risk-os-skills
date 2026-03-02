@@ -1,0 +1,33 @@
+{
+  "source": "schwab-sync-processed",
+  "generatedAt": "2025-01-15T10:00:00Z",
+  "accountSummary": {
+    "portfolioValue": 150000,
+    "accountEquity": 145000,
+    "cashBalance": 25000
+  },
+  "positions": [
+    {
+      "instrument": { "symbol": "AAPL", "assetType": "EQUITY" },
+      "direction": "long",
+      "quantity": 100,
+      "averagePrice": 180.0,
+      "costBasis": 18000.0,
+      "marketValue": 19500.0,
+      "currentPrice": 195.0,
+      "target": 210.0,
+      "stop": 175.0
+    },
+    {
+      "instrument": { "symbol": "NVDA", "assetType": "EQUITY" },
+      "direction": "long",
+      "quantity": 50,
+      "averagePrice": 800.0,
+      "costBasis": 40000.0,
+      "marketValue": 44000.0,
+      "currentPrice": 880.0,
+      "target": 950.0,
+      "stop": 760.0
+    }
+  ]
+}

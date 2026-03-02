@@ -1,0 +1,18 @@
+{
+  "risk_per_trade_pct": 0.01,
+  "max_position_pct": 0.10,
+  "max_concurrent_positions": 10,
+  "min_rr": 1.8,
+  "atr_stop_multiplier": 1.5,
+  "atr_structure_buffer": 0.3,
+  "default_tp_rr": 2.0,
+  "min_ohlcv_bars": 120,
+  "min_news_items": 3,
+  "news_lookback_days": 7,
+  "buy_threshold": 70,
+  "markets": {
+    "US": { "lot_size": 1, "price_limit": null, "currency": "USD", "settlement": "T+2", "tick_size": 0.01 },
+    "HK": { "lot_size": 100, "price_limit": null, "currency": "HKD", "settlement": "T+2", "tick_size": 0.01 },
+    "CN": { "lot_size": 100, "price_limit": 0.10, "currency": "CNY", "settlement": "T+1", "tick_size": 0.01 }
+  }
+}
