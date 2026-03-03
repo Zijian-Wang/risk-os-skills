@@ -71,6 +71,15 @@ FIREBASE_PROJECT_ID=
 FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
 FIREBASE_USER_UID=     # Firebase Auth UID to query positions under
+
+# Schwab API — required for fetch_data.py (US market price data)
+SCHWAB_CLIENT_ID=
+SCHWAB_CLIENT_SECRET=
+# Tokens are read from Firebase (schwabAccounts[0]) and auto-refreshed at runtime
+
+# Local proxy — required if Yahoo/Schwab APIs are geo-blocked
+HTTPS_PROXY=socks5://127.0.0.1:1082
+HTTP_PROXY=socks5://127.0.0.1:1082
 ```
 
 ## Project structure
@@ -87,7 +96,7 @@ risk-os-skills/
 │   └── defaults.json      # Risk parameters and market profiles
 ├── scripts/
 │   ├── fetch_account.py   # Pull account JSON from Firebase
-│   ├── fetch_data.py      # Fetch OHLCV bars + news (yfinance / NewsAPI)
+│   ├── fetch_data.py      # Fetch OHLCV bars + news (Schwab API / Stooq fallback / NewsAPI)
 │   ├── compute_indicators.py  # RSI, MACD, ATR, Bollinger, SMA/EMA
 │   └── check_rules.py     # Risk gate + stop/TP/size computation
 ├── tests/
