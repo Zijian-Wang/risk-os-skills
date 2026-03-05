@@ -5,18 +5,18 @@ Run a full trade analysis for multiple tickers in parallel and render a ranked c
 ## Usage
 
 ```
-/watch-list <SYMBOL1> [SYMBOL2 ...] [--market US] [--account /path/to/account.json] [--timeframe 1d]
+/watch-list <SYMBOL1> [SYMBOL2 ...] --account /path/to/account.json [--market US] [--timeframe 1d]
 ```
 
 Examples:
-- `/watch-list AAPL NVDA TSM`
+- `/watch-list AAPL NVDA TSM --account ~/my_account.json`
 - `/watch-list AAPL NVDA TSM --account /tmp/account.json`
-- `/watch-list 0700 0941 9988 --market HK`
+- `/watch-list 0700 0941 9988 --market HK --account ~/my_account.json`
 
 **Arguments:**
 - Symbols — one or more ticker symbols (required, positional)
+- `--account` — path to account JSON file (required); copy `account_schema_example.json` from the repo root as a template
 - `--market` — US | HK | CN applied to all symbols (default: US)
-- `--account` — path to risk-os JSON (if omitted, fetch_account.py is run once and shared)
 - `--timeframe` — 1d | 1h | 1w (default: 1d)
 
 ---
@@ -45,7 +45,10 @@ Use `$REPO_ROOT` wherever paths reference the project, and `$PYTHON` to invoke s
 
 ### Step 1: Load account once
 
-If `--account` provided, read it. Otherwise run `fetch_account.py` once and save to `/tmp/ts_account_watchlist.json`.
+`--account` is required. If the user did not provide it, stop and ask them to provide a path to their account JSON file (see `account_schema_example.json` in the repo root for the schema). Otherwise, run:
+```bash
+$PYTHON $REPO_ROOT/scripts/fetch_account.py --account-path ACCOUNT_PATH > /tmp/ts_account_watchlist.json
+```
 
 ### Step 2: Analyze all tickers in parallel
 
