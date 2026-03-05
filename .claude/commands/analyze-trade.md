@@ -5,18 +5,18 @@ Runs a full three-tier trade analysis for a single ticker and produces a structu
 ## Usage
 
 ```
-/analyze-trade <SYMBOL> <MARKET> [--account /path/to/account.json] [--risk-pct 0.01] [--timeframe 1d] [--entry 197.40]
+/analyze-trade <SYMBOL> <MARKET> --account /path/to/account.json [--risk-pct 0.01] [--timeframe 1d] [--entry 197.40]
 ```
 
 Examples:
-- `/analyze-trade AAPL US`
+- `/analyze-trade AAPL US --account ~/my_account.json`
 - `/analyze-trade 0700 HK --account /tmp/account.json`
-- `/analyze-trade AAPL US --risk-pct 0.005 --entry 195`
+- `/analyze-trade AAPL US --account ~/my_account.json --risk-pct 0.005 --entry 195`
 
 **Arguments:**
 - `SYMBOL` — ticker symbol (required)
 - `MARKET` — US | HK | CN (required)
-- `--account` — path to risk-os JSON file; if omitted, runs `fetch_account.py` automatically
+- `--account` — path to account JSON file (required); copy `account_schema_example.json` from the repo root as a template
 - `--risk-pct` — risk per trade as decimal (default: from `config/defaults.json`)
 - `--timeframe` — 1d | 1h | 1w (default: 1d)
 - `--entry` — override entry price (default: current market price)
@@ -53,11 +53,11 @@ Use `$REPO_ROOT` wherever paths reference the project, and `$PYTHON` to invoke s
 
 **Step 1: Load account JSON**
 
-If `--account` was provided, read that file. Otherwise run:
+`--account` is required. If the user did not provide it, stop and ask them to provide a path to their account JSON file (see `account_schema_example.json` in the repo root for the schema). Otherwise:
 ```bash
-$PYTHON $REPO_ROOT/scripts/fetch_account.py
+$PYTHON $REPO_ROOT/scripts/fetch_account.py --account-path ACCOUNT_PATH
 ```
-Save the output as the account JSON. If this fails and no `--account` was given, stop and report the error.
+Save the output as the account JSON. If this fails, stop and report the error.
 
 **Step 2: Fetch market data**
 ```bash

@@ -12,8 +12,13 @@ OHLCV bar fields: timestamp (ISO), open, high, low, close, volume
 News item fields: title, published_at (ISO), source, url, summary (optional)
 
 Data source priority:
-  US market  → Schwab Market Data API (token from Firebase), fallback Stooq
+  US market  → Schwab Market Data API (SCHWAB_REFRESH_TOKEN env var), fallback Stooq
   HK/CN market → Stooq
+
+Required env vars for Schwab (US market):
+    SCHWAB_CLIENT_ID
+    SCHWAB_CLIENT_SECRET
+    SCHWAB_REFRESH_TOKEN
 """
 
 import argparse
@@ -56,24 +61,10 @@ def _curl_session():
 # ---------------------------------------------------------------------------
 
 def _schwab_access_token(session) -> str:
-    """Get a fresh Schwab access token via refresh-token grant (token from Firebase)."""
-    import firebase_admin
-    from firebase_admin import credentials, firestore
-
-    if not firebase_admin._apps:
-        cred_dict = {
-            "type": "service_account",
-            "project_id": os.environ["FIREBASE_PROJECT_ID"],
-            "private_key": os.environ["FIREBASE_PRIVATE_KEY"].replace("\\n", "\n"),
-            "client_email": os.environ["FIREBASE_CLIENT_EMAIL"],
-            "token_uri": "https://oauth2.googleapis.com/token",
-        }
-        firebase_admin.initialize_app(credentials.Certificate(cred_dict))
-
-    db = firestore.client()
-    uid = os.environ["FIREBASE_USER_UID"]
-    acct = db.collection("users").document(uid).get().to_dict()["schwabAccounts"][0]
-    refresh_token = acct["refreshToken"]
+    """Get a fresh Schwab access token via refresh-token grant (token from SCHWAB_REFRESH_TOKEN env var)."""
+    refresh_token = os.environ.get("SCHWAB_REFRESH_TOKEN")
+    if not refresh_token:
+        raise RuntimeError("SCHWAB_REFRESH_TOKEN env var not set — required for US market data")
 
     resp = session.post(
         "https://api.schwabapi.com/v1/oauth/token",
