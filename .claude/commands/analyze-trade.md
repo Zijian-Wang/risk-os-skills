@@ -27,7 +27,27 @@ Examples:
 
 Parse the arguments from `$ARGUMENTS`. Extract SYMBOL (first positional), MARKET (second positional), and any named flags.
 
-**TRADE_SKILLS_DIR** is the absolute path to the trade-skills repo: `~/Developer/trade-skills` (expand `~` to full path).
+### Bootstrap — resolve REPO_ROOT and PYTHON
+
+Before running any script, execute this once to set up the environment:
+
+```bash
+# Repo root: use git if available, otherwise fall back to the working directory
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+# Find a usable Python with the project venv packages.
+# Prefer the project venv, then fall back to system python3/python.
+if   [ -x "$REPO_ROOT/.venv/bin/python3" ]; then PYTHON="$REPO_ROOT/.venv/bin/python3"
+elif [ -x "$REPO_ROOT/venv/bin/python3" ];  then PYTHON="$REPO_ROOT/venv/bin/python3"
+elif command -v python3 &>/dev/null;         then PYTHON=python3
+elif command -v python  &>/dev/null;         then PYTHON=python
+else echo "ERROR: no python found" >&2; exit 1; fi
+
+# Quick sanity check — the scripts need pandas at minimum
+$PYTHON -c "import pandas" 2>/dev/null || { echo "ERROR: $PYTHON is missing required packages. Activate the project venv or run: $PYTHON -m pip install -r $REPO_ROOT/requirements.txt" >&2; exit 1; }
+```
+
+Use `$REPO_ROOT` wherever paths reference the project, and `$PYTHON` to invoke scripts.
 
 ### Tier 1 — Computation (sequential Bash calls)
 
@@ -35,26 +55,26 @@ Parse the arguments from `$ARGUMENTS`. Extract SYMBOL (first positional), MARKET
 
 If `--account` was provided, read that file. Otherwise run:
 ```bash
-python $TRADE_SKILLS_DIR/scripts/fetch_account.py
+$PYTHON $REPO_ROOT/scripts/fetch_account.py
 ```
 Save the output as the account JSON. If this fails and no `--account` was given, stop and report the error.
 
 **Step 2: Fetch market data**
 ```bash
-python $TRADE_SKILLS_DIR/scripts/fetch_data.py --symbol SYMBOL --market MARKET --timeframe TIMEFRAME > /tmp/ts_data_SYMBOL.json
+$PYTHON $REPO_ROOT/scripts/fetch_data.py --symbol SYMBOL --market MARKET --timeframe TIMEFRAME > /tmp/ts_data_SYMBOL.json
 ```
 Check `bars_count` in the output. If fewer than 120 bars, warn but continue.
 
 **Step 3: Compute indicators**
 ```bash
-python $TRADE_SKILLS_DIR/scripts/compute_indicators.py --input /tmp/ts_data_SYMBOL.json > /tmp/ts_indicators_SYMBOL.json
+$PYTHON $REPO_ROOT/scripts/compute_indicators.py --input /tmp/ts_data_SYMBOL.json > /tmp/ts_indicators_SYMBOL.json
 ```
 
 **Step 4: Check rules and compute trade plan**
 
 Save the account JSON to `/tmp/ts_account_SYMBOL.json` first, then:
 ```bash
-python $TRADE_SKILLS_DIR/scripts/check_rules.py \
+$PYTHON $REPO_ROOT/scripts/check_rules.py \
   --indicators /tmp/ts_indicators_SYMBOL.json \
   --account /tmp/ts_account_SYMBOL.json \
   [--entry ENTRY_PRICE] \

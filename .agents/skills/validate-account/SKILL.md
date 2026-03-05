@@ -4,7 +4,7 @@ description: Validate risk-os account JSON schema and risk warnings (required fi
 ---
 # Validate Account
 
-Use repo root: `/data/workspace/risk-os-skills`.
+Resolve repo root via `git rev-parse --show-toplevel` (fallback: current working directory).
 
 ## Input
 - `accountPath` (required)

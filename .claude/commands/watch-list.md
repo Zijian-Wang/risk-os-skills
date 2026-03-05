@@ -25,7 +25,23 @@ Examples:
 
 Parse `$ARGUMENTS` to extract the list of symbols and any named flags.
 
-**TRADE_SKILLS_DIR** = `~/Developer/trade-skills` (expand `~`).
+### Bootstrap — resolve REPO_ROOT and PYTHON
+
+Before running any script, execute this once to set up the environment:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+if   [ -x "$REPO_ROOT/.venv/bin/python3" ]; then PYTHON="$REPO_ROOT/.venv/bin/python3"
+elif [ -x "$REPO_ROOT/venv/bin/python3" ];  then PYTHON="$REPO_ROOT/venv/bin/python3"
+elif command -v python3 &>/dev/null;         then PYTHON=python3
+elif command -v python  &>/dev/null;         then PYTHON=python
+else echo "ERROR: no python found" >&2; exit 1; fi
+
+$PYTHON -c "import pandas" 2>/dev/null || { echo "ERROR: $PYTHON is missing required packages. Activate the project venv or run: $PYTHON -m pip install -r $REPO_ROOT/requirements.txt" >&2; exit 1; }
+```
+
+Use `$REPO_ROOT` wherever paths reference the project, and `$PYTHON` to invoke scripts.
 
 ### Step 1: Load account once
 
@@ -38,18 +54,18 @@ Launch one sub-agent **per ticker** using the Agent tool (`run_in_background: fa
 Each sub-agent receives:
 - The ticker symbol and market
 - The account JSON path
-- The trade-skills repo path
+- The repo root path and Python path
 - This instruction:
 
-> Run a complete trade analysis for SYMBOL (MARKET market) using the trade-skills scripts.
+> Run a complete trade analysis for SYMBOL (MARKET market) using the risk-os-skills scripts.
 >
-> TRADE_SKILLS_DIR: [path]
+> REPO_ROOT: [path]
 > Account file: [path]
 >
 > Steps:
-> 1. `python TRADE_SKILLS_DIR/scripts/fetch_data.py --symbol SYMBOL --market MARKET --timeframe TIMEFRAME > /tmp/ts_data_SYMBOL.json`
-> 2. `python TRADE_SKILLS_DIR/scripts/compute_indicators.py --input /tmp/ts_data_SYMBOL.json > /tmp/ts_indicators_SYMBOL.json`
-> 3. `python TRADE_SKILLS_DIR/scripts/check_rules.py --indicators /tmp/ts_indicators_SYMBOL.json --account ACCOUNT_PATH --market MARKET`
+> 1. `$PYTHON REPO_ROOT/scripts/fetch_data.py --symbol SYMBOL --market MARKET --timeframe TIMEFRAME > /tmp/ts_data_SYMBOL.json`
+> 2. `$PYTHON REPO_ROOT/scripts/compute_indicators.py --input /tmp/ts_data_SYMBOL.json > /tmp/ts_indicators_SYMBOL.json`
+> 3. `$PYTHON REPO_ROOT/scripts/check_rules.py --indicators /tmp/ts_indicators_SYMBOL.json --account ACCOUNT_PATH --market MARKET`
 > 4. Based on indicators, assess: trend_bias (bullish/bearish/neutral), trend_strength (strong/moderate/weak), rsi_signal (overbought/neutral/oversold), macd_signal (bullish/bearish/neutral), news_sentiment (if news available from fetch_data output: positive/negative/neutral/mixed, else: no_data).
 >
 > Return a single JSON object:

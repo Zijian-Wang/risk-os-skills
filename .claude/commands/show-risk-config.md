@@ -12,14 +12,14 @@ Display the current risk configuration defaults.
 
 ## Instructions for Claude
 
-**TRADE_SKILLS_DIR** = `~/Developer/trade-skills` (expand `~`).
+Resolve the repo root: `REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"`.
 
-Read `$TRADE_SKILLS_DIR/config/defaults.json` and format it as follows:
+Read `$REPO_ROOT/config/defaults.json` and format it as follows:
 
 ```markdown
 ## Risk Configuration
 
-**Source:** ~/Developer/trade-skills/config/defaults.json
+**Source:** config/defaults.json
 
 ### Trade Risk Limits
 | Parameter | Value | Description |

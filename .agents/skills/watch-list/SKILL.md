@@ -4,7 +4,8 @@ description: Analyze multiple tickers in parallel (US/HK/CN) with risk-os script
 ---
 # Watch List
 
-Use repo root: `/data/workspace/risk-os-skills`.
+Resolve repo root via `git rev-parse --show-toplevel` (fallback: current working directory).
+Find Python: prefer `$REPO_ROOT/.venv/bin/python3`, then `$REPO_ROOT/venv/bin/python3`, then system `python3`, then `python`. Verify chosen Python can `import pandas`.
 
 ## Inputs
 - `symbols` (required, 1+)
@@ -13,11 +14,11 @@ Use repo root: `/data/workspace/risk-os-skills`.
 ## Workflow
 1. Load account once.
    - If `accountPath` provided, read it.
-   - Else run: `python3 scripts/fetch_account.py`.
+   - Else run: `$PYTHON scripts/fetch_account.py`.
 2. For each symbol, run analysis in parallel:
-   - `python3 scripts/fetch_data.py --symbol <sym> --market <market> --timeframe <timeframe>`
-   - `python3 scripts/compute_indicators.py --input <data-json>`
-   - `python3 scripts/check_rules.py --indicators <ind-json> --account <account-json> --market <market>`
+   - `$PYTHON scripts/fetch_data.py --symbol <sym> --market <market> --timeframe <timeframe>`
+   - `$PYTHON scripts/compute_indicators.py --input <data-json>`
+   - `$PYTHON scripts/check_rules.py --indicators <ind-json> --account <account-json> --market <market>`
 3. Per symbol, produce JSON-like result fields:
    - symbol, price, decision, conviction, trend bias/strength, RSI signal, MACD signal, news sentiment, R/R, size, risk amount, violations/error.
 4. Sort results:

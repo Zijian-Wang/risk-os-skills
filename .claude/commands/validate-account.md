@@ -10,7 +10,7 @@ Validate an account JSON file against the risk-os canonical schema.
 
 Examples:
 - `/validate-account /tmp/account.json`
-- `/validate-account ~/Developer/trade-skills/tests/fixtures/sample_account.json`
+- `/validate-account ~/Developer/risk-os-skills/tests/fixtures/sample_account.json`
 
 ---
 

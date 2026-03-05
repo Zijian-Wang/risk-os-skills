@@ -4,7 +4,7 @@ description: Read config/defaults.json from risk-os-skills and render concise ri
 ---
 # Show Risk Config
 
-Use repo root: `/data/workspace/risk-os-skills`.
+Resolve repo root via `git rev-parse --show-toplevel` (fallback: current working directory).
 
 ## Workflow
 1. Read `config/defaults.json`.
