@@ -4,7 +4,8 @@ description: Run full three-tier BUY/NO_BUY trade analysis for a single ticker i
 ---
 # Analyze Trade
 
-Use repo root: `/data/workspace/risk-os-skills`.
+Resolve repo root via `git rev-parse --show-toplevel` (fallback: current working directory).
+Find Python: prefer `$REPO_ROOT/.venv/bin/python3`, then `$REPO_ROOT/venv/bin/python3`, then system `python3`, then `python`. Verify chosen Python can `import pandas`.
 
 ## Inputs
 - `symbol` (required)
@@ -15,13 +16,13 @@ Use repo root: `/data/workspace/risk-os-skills`.
 1. Load account JSON.
    - If `accountPath` provided, read it.
    - Else run:
-   - `python3 scripts/fetch_account.py`
+   - `$PYTHON scripts/fetch_account.py`
 2. Fetch market data:
-   - `python3 scripts/fetch_data.py --symbol <symbol> --market <market> --timeframe <timeframe>`
+   - `$PYTHON scripts/fetch_data.py --symbol <symbol> --market <market> --timeframe <timeframe>`
 3. Compute indicators:
-   - `python3 scripts/compute_indicators.py --input <data-json-path>`
+   - `$PYTHON scripts/compute_indicators.py --input <data-json-path>`
 4. Risk/plan gate:
-   - `python3 scripts/check_rules.py --indicators <ind-json-path> --account <account-json-path> --market <market> [--entry <entry>] [--risk-pct <riskPct>]`
+   - `$PYTHON scripts/check_rules.py --indicators <ind-json-path> --account <account-json-path> --market <market> [--entry <entry>] [--risk-pct <riskPct>]`
 5. If `passed=false`, return `NO_BUY` with violations and stop.
 6. If passed, produce concise synthesis with:
    - decision (`BUY|NO_BUY`)

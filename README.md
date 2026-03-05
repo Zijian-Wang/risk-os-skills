@@ -14,16 +14,20 @@ Claude Code slash commands and Python scripts for the **risk-os** universe — s
 ## Setup
 
 ```bash
-# 1. Clone and install dependencies
-git clone <repo-url> ~/Developer/trade-skills
-cd ~/Developer/trade-skills
+# 1. Clone
+git clone <repo-url>
+cd risk-os-skills
+
+# 2. Create venv and install dependencies
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 
-# 2. Configure credentials
+# 3. Configure credentials
 cp .env.example .env
 # Edit .env — add Firebase credentials and optional NewsAPI key
 
-# 3. Link commands globally into Claude Code
+# 4. Link commands globally into Claude Code
 bash setup.sh
 ```
 
